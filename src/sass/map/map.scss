@@ -1,4 +1,12 @@
 .map {
-  height: 320px;
-  width: 640px;
+  height: 330px;
+  margin-bottom: 25px;
+  width: 100%;
+
+  @include mq($from: medium) {
+    height: 0;
+    margin-bottom: 0;
+    padding-bottom: 100%;
+    width: 100%;
+  }
 }

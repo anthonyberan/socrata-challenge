@@ -1,9 +1,21 @@
 @import '../css/normalize';
+@import '../../bower_components/foundation/scss/foundation/components/grid';
+@import '../../bower_components/sass-mq/mq';
+
+//import settings for project
+@import 'settings';
+@import 'mixins';
+
+//import base theme
+@import 'base';
+//typography
+@import 'typography';
+
+//layout blocks
+@import 'header/header';
 
 //import modules
 @import 'map/map';
-
-body {
-  background: #ff0;
-  display: flex;
-}
+@import 'filters/filters';
+@import 'stripe/stripe';
+@import 'slab/slab';

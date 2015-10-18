@@ -1,0 +1,16 @@
+h1 {
+  @include rem('font-size', 36);
+  font-weight: 500;
+  margin-top: 0;
+}
+
+h2 {
+  @include rem('font-size', 24);
+  font-weight: 100;
+  margin-top: 0;
+}
+
+p {
+  @include rem('font-size', 18);
+  max-width: 45em;
+}

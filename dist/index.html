@@ -1,23 +1,60 @@
 <!doctype html>
 <html class="no-js" lang="en-us">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title>Crime rates around CenturyLink field</title>
-        <meta name="description" content="Data visualization for the crimes around CenturyLink field">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Crime rates around CenturyLink field</title>
+    <meta name="description" content="Data visualization for the crimes around CenturyLink field">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <link rel="apple-touch-icon" href="apple-touch-icon.png">
-        <!-- Place favicon.ico in the root directory -->
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <!-- Place favicon.ico in the root directory -->
+    <link href='https://fonts.googleapis.com/css?family=Roboto:400,700,100,100italic,300,300italic,400italic,500,500italic,700italic,900,900italic' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="css/main.css">
+    <!-- <script src="js/modernizr-custom.js"></script> -->
+  </head>
+  <body>
 
-        <link rel="stylesheet" href="css/main.css">
-        <script src="js/modernizr-custom.js"></script>
-    </head>
-    <body>
-
-        <div class="map" id="map">
+    <header class="header">
+      <div class="row">
+        <div class="columns small-12">
+          <div class="stripe header__inner">
+            <h1>How dangerous is it exactly around CenturyLink Field?</h1>
+            <p>For years the 12th man and the Seahawks have made visiting CenturyLink Field a nightmare for opposing teams. But how safe is the surrounding for the people of Seattle and the visiting fans?</p>
+            <p>Take a look at the data below and make the decision for yourself.</p>
+          </div>
         </div>
-        <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-        <script src="js/app.js"></script>
-    </body>
+      </div>
+    </header>
+
+    <main class="main">
+
+      <div class="stripe slab--accent">
+        <div class="row">
+          <div class="columns small-12 large-12">
+            <h2>Toggle any of the crime types to update the heatmap.</h2>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="columns small-12 medium-6 large-4">
+            <div class="map" id="map"></div>
+          </div>
+          <div class="columns small-12 medium-6 large-8" id="map-filters">
+            <div class="filters__filter--highlight">
+              <label>
+              <input type="checkbox" class="filters__checkbox" value="ALL" checked="checked">
+              <span class="filters__label">TOGGLE ALL</span>
+              </label>
+            </div>
+            <ul class="filters clearfix" id="map-filters-list"></ul>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script src="js/app.js"></script>
+  </body>
 </html>

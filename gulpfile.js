@@ -7,7 +7,7 @@ var concat = require('gulp-concat');
 
 
 gulp.task('css', function () {
-  gulp.src('./src/sass/**/*.scss')
+  gulp.src('./src/sass/main.scss')
     .pipe(sass().on('error', sass.logError))
     .pipe(autoprefixer({
         browsers: ['last 2 versions', 'ie >= 9'],
@@ -18,7 +18,7 @@ gulp.task('css', function () {
 });
 
 gulp.task('cssbuild', function () {
-  gulp.src('./src/sass/**/*.scss')
+  gulp.src('./src/sass/main.scss')
     .pipe(sass().on('error', sass.logError))
     .pipe(autoprefixer({
         browsers: ['last 2 versions', 'ie >= 9'],

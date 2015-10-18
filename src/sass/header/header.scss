@@ -1,0 +1,22 @@
+.header {
+  background: url('../assets/header.jpg') no-repeat 50% 50%;
+  background-size: cover;
+  position: relative;
+
+  &:after {
+    background: $img-overlay;
+    content: '';
+    display: block;
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+  }
+}
+
+.header__inner {
+  color: $primary-color-text;
+  position: relative;
+  z-index: 5;
+}
