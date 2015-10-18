@@ -1,0 +1,9 @@
+@import '../css/normalize';
+
+//import modules
+@import 'map/map';
+
+body {
+  background: #ff0;
+  display: flex;
+}
