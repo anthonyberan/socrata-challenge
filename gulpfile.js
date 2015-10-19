@@ -42,7 +42,7 @@ gulp.task('js', function() {
 });
 
 gulp.task('jsbuild', function() {
-  return gulp.src(['src/js/jquery.min.js', 'src/js/main.js'])
+  return gulp.src(['src/js/jquery.min.js', 'bower_components/highstock/highstock.src.js', 'src/js/main.js'])
     .pipe(concat('app.js'))
     .pipe(gulp.dest('./dist/js'));
 });
