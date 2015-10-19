@@ -2,3 +2,7 @@
   @include rem('padding', 25, 0);
   width: 100%;
 }
+
+.stripe__headline {
+  border-bottom: 1px solid $primary-color;
+}

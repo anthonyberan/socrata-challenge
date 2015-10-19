@@ -1371,6 +1371,9 @@ p {
   padding: 1.5625rem 0rem;
   width: 100%; }
 
+.stripe__headline {
+  border-bottom: 1px solid #4caf50; }
+
 .slab--accent {
   background: #448aff;
   color: #fff; }
