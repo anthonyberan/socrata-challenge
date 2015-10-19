@@ -7,6 +7,10 @@
     mapPoints,
     activeFilters = [];
 
+  function showError(msg, el) {
+    $(el).html('<span class="error">' + msg + '</span>');
+  }
+
   // parses the large dataset returned from API call and creates new object
   // with data formatted down to what is needed for the project.
   function parseData(data) {
@@ -47,7 +51,7 @@
     mapHandling(map, map.getCenter());
   }
 
-  // either add or remove data points from the heatmap depending on the state
+  // update heatmap visualization with new map Points
   function updateMap(mapPoints) {
     heatmap.setData(mapPoints);
   }
@@ -81,10 +85,10 @@
     return points;
   }
 
+  //renders filters for the map based off the dataset
   function renderMapFilters(dataSet) {
-    // map-filters
     var sortedKeys,
-      filtersHTML = '', //move this to handlebars if time permits
+      filtersHTML = '',
       $mapFilters = $('#map-filters');
 
     //render filters alphabetically
@@ -102,16 +106,18 @@
     });
 
     $('#map-filters-list').html(filtersHTML);
-    //save reference to filter elements
     filterHandling($mapFilters, '.filters__checkbox');
   }
 
+  //keeps the map centered on window.resize
   function mapHandling(map, center) {
     google.maps.event.addDomListener(window, 'resize', function() {
       map.setCenter(center);
     });
   }
 
+  // sends request to update the active filters used by the map
+  // if triggered by user interaction updated the heatmap visualization
   function filterHandling($mapFilters, selector) {
     var $filters = $mapFilters.find(selector);
 
@@ -141,7 +147,7 @@
     });
   }
 
-  function renderBarGraph(dataSet) {
+  function renderIncidentByQuantity(dataSet) {
     var data = [],
       count = 0,
       z = dataSet.length;
@@ -165,18 +171,15 @@
             type: 'column'
         },
         title: {
-            text: 'Crime incidents by type'
-        },
-        subtitle: {
-            text: 'Source: Socrata'
+            text: ''
         },
         xAxis: {
             type: 'category',
             labels: {
                 rotation: -90,
                 style: {
-                    fontSize: '13px',
-                    fontFamily: 'Verdana, sans-serif'
+                    fontSize: '12px',
+                    fontFamily: 'Roboto, sans-serif'
                 }
             }
         },
@@ -196,23 +199,13 @@
             name: 'Crime Incidents',
             data: data,
             dataLabels: {
-                enabled: false,
-                rotation: 45,
-                color: '#FF0000',
-                align: 'right',
-                format: '{point.y}',
-                // y: 10, // 10 pixels down from the top
-                style: {
-                    fontSize: '13px',
-                    fontFamily: 'Verdana, sans-serif'
-                }
+                enabled: false
             }
         }]
     });
-
   }
 
-  function renderTimeChart(dataSet) {
+  function renderIncidentOverTime(dataSet) {
     //format data for highcharts consumption
     // Create the chart
     var data = [];
@@ -221,16 +214,9 @@
     });
 
     $('#crime-time-chart').highcharts('StockChart', {
-
-
         rangeSelector : {
             selected : 1
         },
-
-        title : {
-            text : 'Crime incidents over time'
-        },
-
         series : [{
             name : 'Crime Incidents',
             data : data,
@@ -255,6 +241,7 @@
     });
   }
 
+  //init geocoding and API requests here
   $(document).ready(function() {
     //radius is 1 mile converted to meters
     var dataEndpoint = 'https://data.seattle.gov/resource/3k2p-39jp.json?',
@@ -264,7 +251,7 @@
       address = '800 Occidental Ave S, Seattle, WA 98134',
       searchParam = '$where=within_circle(incident_location, ';
 
-    //load google maps to geocode CenturyLink Field's address as well as generate the map
+    //load google maps to geocode CenturyLink Field's address as well as generate the map and charts once geocoding completes
     google.load('maps', '3', { other_params: 'key=AIzaSyCt4z9pUcxNPImfw5XUKIllrkEg1KiR77w&libraries=visualization', callback: function() {
         var geocoder = new google.maps.Geocoder();
         geocoder.geocode( { 'address': address}, function(results, status) {
@@ -272,7 +259,7 @@
             //valid address, take the first results
             lat = results[0].geometry.location.G;
             lng = results[0].geometry.location.K;
-
+            //update search parameters lat/lng
             searchParam += lat + ', ' + lng + ', ' + radius + ')';
 
             //load data set now that we have the location
@@ -285,7 +272,7 @@
                 renderMap(lat, lng, parsedData);
               }
               else {
-                console.log('Show error page.');
+                showError('Failed to load. Please retry in a little bit.', '#map');
               }
             });
 
@@ -294,10 +281,10 @@
             }).success(function(data, status) {
               if( status === 'success' ) {
                 dataSet = data;
-                renderTimeChart(dataSet);
+                renderIncidentOverTime(dataSet);
               }
               else {
-                console.log('Show error page.');
+                showError('Failed to load. Please retry in a little bit.', '#crime-time-chart');
               }
             });
 
@@ -306,15 +293,15 @@
             }).success(function(data, status) {
               if( status === 'success' ) {
                 dataSet = data;
-                renderBarGraph(dataSet);
+                renderIncidentByQuantity(dataSet);
               }
               else {
-                console.log('Show error page.');
+                showError('Failed to load. Please retry in a little bit.', '#crime-quantity-graph');
               }
             });
 
           } else {
-            alert("Geocode was not successful for the following reason: " + status);
+            alert('Unable to location coordinates. Please try again a little bit');
           }
         });
     }});

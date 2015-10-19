@@ -23773,6 +23773,10 @@ extend(Highcharts, {
     mapPoints,
     activeFilters = [];
 
+  function showError(msg, el) {
+    $(el).html('<span class="error">' + msg + '</span>');
+  }
+
   // parses the large dataset returned from API call and creates new object
   // with data formatted down to what is needed for the project.
   function parseData(data) {
@@ -23813,7 +23817,7 @@ extend(Highcharts, {
     mapHandling(map, map.getCenter());
   }
 
-  // either add or remove data points from the heatmap depending on the state
+  // update heatmap visualization with new map Points
   function updateMap(mapPoints) {
     heatmap.setData(mapPoints);
   }
@@ -23847,10 +23851,10 @@ extend(Highcharts, {
     return points;
   }
 
+  //renders filters for the map based off the dataset
   function renderMapFilters(dataSet) {
-    // map-filters
     var sortedKeys,
-      filtersHTML = '', //move this to handlebars if time permits
+      filtersHTML = '',
       $mapFilters = $('#map-filters');
 
     //render filters alphabetically
@@ -23868,16 +23872,18 @@ extend(Highcharts, {
     });
 
     $('#map-filters-list').html(filtersHTML);
-    //save reference to filter elements
     filterHandling($mapFilters, '.filters__checkbox');
   }
 
+  //keeps the map centered on window.resize
   function mapHandling(map, center) {
     google.maps.event.addDomListener(window, 'resize', function() {
       map.setCenter(center);
     });
   }
 
+  // sends request to update the active filters used by the map
+  // if triggered by user interaction updated the heatmap visualization
   function filterHandling($mapFilters, selector) {
     var $filters = $mapFilters.find(selector);
 
@@ -23907,7 +23913,7 @@ extend(Highcharts, {
     });
   }
 
-  function renderBarGraph(dataSet) {
+  function renderIncidentByQuantity(dataSet) {
     var data = [],
       count = 0,
       z = dataSet.length;
@@ -23931,18 +23937,15 @@ extend(Highcharts, {
             type: 'column'
         },
         title: {
-            text: 'Crime incidents by type'
-        },
-        subtitle: {
-            text: 'Source: Socrata'
+            text: ''
         },
         xAxis: {
             type: 'category',
             labels: {
                 rotation: -90,
                 style: {
-                    fontSize: '13px',
-                    fontFamily: 'Verdana, sans-serif'
+                    fontSize: '12px',
+                    fontFamily: 'Roboto, sans-serif'
                 }
             }
         },
@@ -23962,23 +23965,13 @@ extend(Highcharts, {
             name: 'Crime Incidents',
             data: data,
             dataLabels: {
-                enabled: false,
-                rotation: 45,
-                color: '#FF0000',
-                align: 'right',
-                format: '{point.y}',
-                // y: 10, // 10 pixels down from the top
-                style: {
-                    fontSize: '13px',
-                    fontFamily: 'Verdana, sans-serif'
-                }
+                enabled: false
             }
         }]
     });
-
   }
 
-  function renderTimeChart(dataSet) {
+  function renderIncidentOverTime(dataSet) {
     //format data for highcharts consumption
     // Create the chart
     var data = [];
@@ -23987,16 +23980,9 @@ extend(Highcharts, {
     });
 
     $('#crime-time-chart').highcharts('StockChart', {
-
-
         rangeSelector : {
             selected : 1
         },
-
-        title : {
-            text : 'Crime incidents over time'
-        },
-
         series : [{
             name : 'Crime Incidents',
             data : data,
@@ -24021,6 +24007,7 @@ extend(Highcharts, {
     });
   }
 
+  //init geocoding and API requests here
   $(document).ready(function() {
     //radius is 1 mile converted to meters
     var dataEndpoint = 'https://data.seattle.gov/resource/3k2p-39jp.json?',
@@ -24030,7 +24017,7 @@ extend(Highcharts, {
       address = '800 Occidental Ave S, Seattle, WA 98134',
       searchParam = '$where=within_circle(incident_location, ';
 
-    //load google maps to geocode CenturyLink Field's address as well as generate the map
+    //load google maps to geocode CenturyLink Field's address as well as generate the map and charts once geocoding completes
     google.load('maps', '3', { other_params: 'key=AIzaSyCt4z9pUcxNPImfw5XUKIllrkEg1KiR77w&libraries=visualization', callback: function() {
         var geocoder = new google.maps.Geocoder();
         geocoder.geocode( { 'address': address}, function(results, status) {
@@ -24038,7 +24025,7 @@ extend(Highcharts, {
             //valid address, take the first results
             lat = results[0].geometry.location.G;
             lng = results[0].geometry.location.K;
-
+            //update search parameters lat/lng
             searchParam += lat + ', ' + lng + ', ' + radius + ')';
 
             //load data set now that we have the location
@@ -24051,46 +24038,36 @@ extend(Highcharts, {
                 renderMap(lat, lng, parsedData);
               }
               else {
-                console.log('Show error page.');
+                showError('Failed to load. Please retry in a little bit.', '#map');
               }
             });
-
-            // var endPoint = 'https://data.seattle.gov/resource/3k2p-39jp.json?$select=date_trunc_ymd(event_clearance_date) AS day, count(*) AS total&$order=day&$where=within_circle(incident_location, 47.593307, -122.33216540000001, 1609.34)&$group=day'
-
-            // var endPoint = dataEndpoint + '$select=date_trunc_ymd(event_clearance_date) AS day, count(*) AS total&$order=day&' + searchParam + '&$group=day';
-
 
             $.ajax({
               url: dataEndpoint + '$select=date_trunc_ymd(event_clearance_date) AS day, count(*) AS total&$order=day&' + searchParam + '&$group=day'
             }).success(function(data, status) {
               if( status === 'success' ) {
                 dataSet = data;
-                renderTimeChart(dataSet);
+                renderIncidentOverTime(dataSet);
               }
               else {
-                console.log('Show error page.');
+                showError('Failed to load. Please retry in a little bit.', '#crime-time-chart');
               }
             });
-
-
-            // var endPoint = 'https://data.seattle.gov/resource/3k2p-39jp.json?$select=event_clearance_group, count(*) AS total&$order=total DESC&$where=within_circle(incident_location, 47.593307, -122.33216540000001, 1609.34)&$group=event_clearance_group'
-
-            // var endPoint = dataEndpoint + '$select=event_clearance_group, count(*) AS total&$order=total DESC&' + searchParam + '&$group=event_clearance_group';
 
             $.ajax({
               url: dataEndpoint + '$select=event_clearance_group, count(*) AS total&$order=total DESC&' + searchParam + '&$group=event_clearance_group'
             }).success(function(data, status) {
               if( status === 'success' ) {
                 dataSet = data;
-                renderBarGraph(dataSet);
+                renderIncidentByQuantity(dataSet);
               }
               else {
-                console.log('Show error page.');
+                showError('Failed to load. Please retry in a little bit.', '#crime-quantity-graph');
               }
             });
 
           } else {
-            alert("Geocode was not successful for the following reason: " + status);
+            alert('Unable to location coordinates. Please try again a little bit');
           }
         });
     }});
